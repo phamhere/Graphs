@@ -10,7 +10,7 @@ class Queue():
     def enqueue(self, value):
         self.queue.append(value)
 
-    def dequeue(self, value):
+    def dequeue(self):
         if self.size() > 0:
             return self.queue.pop(0)
         else:
@@ -27,7 +27,7 @@ class Stack():
     def push(self, value):
         self.stack.append(value)
 
-    def pop(self, value):
+    def pop(self):
         if self.size() > 0:
             return self.stack.pop()
         else:
@@ -63,7 +63,7 @@ class Graph:
         # create an empty queue
         q = Queue()
         # create an empty set of visited vertices
-        visited = {}
+        visited = set()
         # put the starting vertex in our queue
         q.enqueue(starting_vertex_id)
         # while the queue is not empty
@@ -79,7 +79,7 @@ class Graph:
                 for neighbor in self.vertices[v]:
                     q.enqueue(neighbor)
 
-    def dft_iteration(self, starting_vertex_id):
+    def dft(self, starting_vertex_id):
         # create an empty stack
         s = Stack()
         # create an empty set of visited vertices
@@ -100,4 +100,14 @@ class Graph:
                     s.push(neighbor)
 
     def dft_recursion(self, starting_vertex_id):
-        pass
+        visited = set()
+
+        def helper(node):
+            if node not in visited:
+                print(node)
+                visited.add(node)
+
+                for neighbor in self.vertices[node]:
+                    helper(neighbor)
+
+        helper(starting_vertex_id)
