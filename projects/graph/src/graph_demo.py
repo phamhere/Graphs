@@ -4,8 +4,7 @@
 Demonstration of Graph functionality.
 """
 
-from sys import argv
-
+# from sys import argv
 from graph import Graph
 
 
@@ -28,8 +27,7 @@ def main():
     graph.add_directed_edge('3', '5')
     graph.add_directed_edge('2', '3')
     graph.add_directed_edge('4', '6')
-    graph.dft_recursion('1')
-    # print(graph.vertices)
+    print(graph.vertices)
 
 
 if __name__ == '__main__':

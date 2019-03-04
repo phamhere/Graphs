@@ -38,7 +38,7 @@ class Stack():
 
 
 class Graph:
-    """Represent a graph as a dictionary of vertices mapping labels to edges."""
+    """Make a graph as a dictionary of vertices mapping labels to edges."""
 
     def __init__(self):
         self.vertices = {}
@@ -101,6 +101,7 @@ class Graph:
 
     def dft_recursion(self, starting_vertex_id):
         visited = set()
+        # creating helper function since we need to store visited data
 
         def helper(node):
             if node not in visited:
@@ -108,6 +109,50 @@ class Graph:
                 visited.add(node)
 
                 for neighbor in self.vertices[node]:
+                    # calling recursion function on neighbors
                     helper(neighbor)
-
+        # initializing the recursive call on the first vertex
         helper(starting_vertex_id)
+
+    def bfs(self, starting_vertex, target_vertex):
+        # creating a queue starting with a tuple
+        queue = [(starting_vertex, [starting_vertex])]
+        paths = []
+        while queue:
+            # pops off the first element of the stack and tuple deconstructs it
+            (vertex, path) = queue.pop(0)
+            # loops through all neighbors of the vertex minus the path values
+            for neighbor in self.vertices[vertex] - set(path):
+                if neighbor == target_vertex:
+                    paths.append(path + [neighbor])
+                else:
+                    queue.append((neighbor, path + [neighbor]))
+        # sorting the paths based on length
+        sorted(paths, key=len)
+        # returning the shortest path or empty list if it wasn't found
+        if len(paths) > 0:
+            return paths[0]
+        else:
+            return paths
+
+    def dfs(self, starting_vertex, target_vertex):
+        # creating a stack starting with a tuple
+        stack = [(starting_vertex, [starting_vertex])]
+        paths = []
+        while stack:
+            # pops off the last element of the stack and tuple deconstructs it
+            (vertex, path) = stack.pop()
+            # loops through all neighbors of the vertex minus the path values
+            for neighbor in self.vertices[vertex] - set(path):
+                # if the neighbor is the target vertex, append to paths
+                if neighbor == target_vertex:
+                    paths.append(path + [neighbor])
+                else:
+                    stack.append((neighbor, path + [neighbor]))
+        # sorting the paths based on length
+        sorted(paths, key=len)
+        # returning the shortest path or empty list if it wasn't found
+        if len(paths) > 0:
+            return paths[0]
+        else:
+            return paths
