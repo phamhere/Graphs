@@ -135,6 +135,31 @@ class Graph:
         else:
             return paths
 
+    def bfs2(self, starting_vertex_id, target_id):
+        # create an empty queue
+        q = Queue()
+        # create an empty set of visited vertices
+        visited = set()
+        # put the starting vertex in our queue
+        q.enqueue([starting_vertex_id])
+        # while the queue is not empty
+        while q.size() > 0:
+            # dequeue the first node from the queue
+            path = q.dequeue()
+            v = path[-1]
+            # if that node has not been visited
+            if v not in visited:
+                # mark as visited
+                visited.add(v)
+                # if v is target, return the path
+                if v == target_id:
+                    return path
+                # then put all of it's children into the queue as paths
+                for neighbor in self.vertices[v]:
+                    new_path = list(path)
+                    new_path.append(neighbor)
+                    q.enqueue(new_path)
+
     def dfs(self, starting_vertex, target_vertex):
         # creating a stack starting with a tuple
         stack = [(starting_vertex, [starting_vertex])]
