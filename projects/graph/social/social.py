@@ -61,10 +61,11 @@ class SocialGraph:
             for friendID in range(userID + 1, self.lastID + 1):
                 possibleFriendships.append((userID, friendID))
         random.shuffle(possibleFriendships)
-        
+
         totalFriendships = (numUsers * avgFriendships) // 2
         for i in range(totalFriendships):
-            self.addFriendship(possibleFriendships[i][0], possibleFriendships[i][1])
+            self.addFriendship(
+                possibleFriendships[i][0], possibleFriendships[i][1])
 
     def getAllSocialPaths(self, userID):
         """
@@ -77,6 +78,19 @@ class SocialGraph:
         """
         visited = {}  # Note that this is a dictionary, not a set
         # !!!! IMPLEMENT ME
+
+        q = [[userID]]
+        # setting the userID in visited dict value to None
+        while len(q) > 0:
+            path = q.pop(0)
+            v = path[-1]
+            # if v not in visited, make a dict entry and queue up neighbors
+            if v not in visited:
+                visited[v] = path
+                for neighbor in self.friendships[v]:
+                    new_path = list(path)
+                    new_path.append(neighbor)
+                    q.append(new_path)
         return visited
 
 
