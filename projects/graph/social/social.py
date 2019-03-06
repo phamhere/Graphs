@@ -88,9 +88,10 @@ class SocialGraph:
             if v not in visited:
                 visited[v] = path
                 for neighbor in self.friendships[v]:
-                    new_path = list(path)
-                    new_path.append(neighbor)
-                    q.append(new_path)
+                    if neighbor not in visited:
+                        new_path = list(path)
+                        new_path.append(neighbor)
+                        q.append(new_path)
         return visited
 
     def percentageInSocialNetwork(self):
