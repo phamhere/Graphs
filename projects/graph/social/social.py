@@ -93,6 +93,15 @@ class SocialGraph:
                     q.append(new_path)
         return visited
 
+    def percentageInSocialNetwork(self):
+        totalNetworks = 0
+        for user in self.users:
+            totalNetworks += len(self.getAllSocialPaths(user))
+        return ((totalNetworks / len(self.users)) / len(self.users)) * 100
+
+    def degreeOfSeparation(self):
+        pass
+
 
 if __name__ == '__main__':
     sg = SocialGraph()
@@ -100,3 +109,4 @@ if __name__ == '__main__':
     print(sg.friendships)
     connections = sg.getAllSocialPaths(1)
     print(connections)
+    print(sg.percentageInSocialNetwork())
