@@ -1,4 +1,3 @@
-from room import Room
 from player import Player
 from world import World
 
@@ -19,79 +18,92 @@ player = Player("Name", world.startingRoom)
 # FILL THIS IN
 traversalPath = []
 graph = {}
+nontraversed_directions = set()
+
+# instantiating first room in graph
+graph[player.currentRoom.id] = {}
+for exit in player.currentRoom.getExits():
+    graph[player.currentRoom.id][exit] = '?'
+
+# instantiating nontraversed directions in current room
+for exit in player.currentRoom.getExits():
+    nontraversed_directions.add(f'{player.currentRoom.id}{exit}')
 
 
-def bfs_path(starting_vertex_id):
+def bfs_path(starting_vertex):
+    initial_room = starting_vertex
     q = []
-    visited = set()
-    q.push([starting_vertex_id])
+    # starting queue with initial_room items
+    for direction, room in graph[initial_room].items():
+        q.append([[direction, room]])
     while len(q) > 0:
         path = q.pop(0)
         v = path[-1]
-        if v not in visited:
-            for exit in graph[v]:
-                if graph[v][exit] == '?':
-                    return path
-            visited.add(v)
-            for old_exit in graph[v]:
-                new_path = list(path)
-                new_path.append(graph[v][old_exit])
-                q.enqueue(new_path)
-    return None
+        # if '?' in current room, move player and add to traversalPath
+        if '?' in graph[v[1]].values():
+            for direction, room in path:
+                player.travel(direction)
+                traversalPath.append(direction)
+            break
+        # continue search if no '?' in current room
+        else:
+            for direction, room in graph[v[1]].items():
+                if room != initial_room and room not in [room for direction, room in path]:
+                    new_path = list(path) + [[direction, room]]
+                    q.append(new_path)
 
 
-def find_directions(path):
-    current_room = path[0]
-    directions = []
-    for room in path[1:]:
-        for exit in graph[current_room]:
-            if room == graph[current_room][exit]:
-                directions.append(exit)
-                current_room = room
-    return directions
+def opposite_direction(direction):
+    if direction == 'n':
+        return 's'
+    if direction == 's':
+        return 'n'
+    if direction == 'w':
+        return 'e'
+    if direction == 'e':
+        return 'w'
 
 
 def player_travel():
-    while True:
-        # instantiates the first room into the graph
-        if player.currentRoom.id not in graph:
-            graph[player.currentRoom.id] = {}
-            for exit in player.currentRoom.getExits():
-                graph[player.currentRoom.id][exit] = '?'
-        for exit in graph[player.currentRoom.id]:
-            # if an exit in the current room is '?', explore one of those rooms
-            if graph[player.currentRoom.id][exit] == '?':
-                # saving the traversalPath before exiting
-                traversalPath.append(exit)
-                # saving the previousRoomId
-                previousRoomId = player.currentRoom.id
-                # moving into next room
-                player.travel(exit)
-                # marking next room in previous room's entry
-                graph[previousRoomId][exit] = player.currentRoom.id
-                # marking previous room in this next room's entry
-                if exit == 'n':
-                    graph[player.currentRoom.id] = {'s': previousRoomId}
-                elif exit == 's':
-                    graph[player.currentRoom.id] = {'n': previousRoomId}
-                elif exit == 'w':
-                    graph[player.currentRoom.id] = {'e': previousRoomId}
-                elif exit == 'e':
-                    graph[player.currentRoom.id] = {'w': previousRoomId}
-                # marking rest of room's exits as '?'
+    while nontraversed_directions:
+        print(player.currentRoom.id)
+        # pursue the current room if it has unknown exits
+        if '?' in graph[player.currentRoom.id].values():
+            # initializing variables
+            next_direction = None
+            initial_room = player.currentRoom.id
+            # planning next_direction based on which exit is unknown
+            for exit in graph[initial_room]:
+                if graph[initial_room][exit] == '?':
+                    next_direction = exit
+                    break
+            # take out the next move we'll make from nontraversed_directions
+            nontraversed_directions.remove(f'{initial_room}{next_direction}')
+            # move player and add to traversalPath
+            player.travel(next_direction)
+            traversalPath.append(next_direction)
+            new_room = player.currentRoom.id
+            # if new_room not in graph then make it so with exits!
+            if new_room not in graph:
+                graph[player.currentRoom.id] = {}
                 for exit in player.currentRoom.getExits():
-                    if exit not in graph[player.currentRoom.id]:
-                        graph[player.currentRoom.id][exit] = '?'
-                break
-            else:
-                backtrack = bfs_path(player.currentRoom.id)
-                if backtrack is None:
-                    return
-                for direction in find_directions(backtrack):
-                    player.travel(direction)
-                    traversalPath.append(direction)
-                break
+                    graph[player.currentRoom.id][exit] = '?'
+            # update graph for both rooms
+            graph[initial_room][next_direction] = new_room
+            graph[new_room][opposite_direction(next_direction)] = initial_room
+            # add new unknown exits to nontraversed_directions
+            for direction, room in graph[new_room].items():
+                if room == '?':
+                    nontraversed_directions.add(f'{new_room}{direction}')
+            # removing backtrack if exists
+            if f'{new_room}{opposite_direction(next_direction)}' in nontraversed_directions:
+                nontraversed_directions.remove(f'{new_room}{opposite_direction(next_direction)}')
+        # do bfs to find nearest room with unknown exits
+        else:
+            bfs_path(player.currentRoom.id)
 
+
+player_travel()
 
 # TRAVERSAL TEST
 visited_rooms = set()
